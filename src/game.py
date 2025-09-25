@@ -6,5 +6,5 @@ class Game:
         self.deck = Deck()
         self.playerHand = Hand()
         self.dealerHand = Hand()
-        playerHand.addCard(deck.draw())
-        playerHand.addCard(deck.draw())
+        self.playerHand.addCard(self.deck.draw())
+        self.playerHand.addCard(self.deck.draw())
