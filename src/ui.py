@@ -1,6 +1,9 @@
 import tkinter as tk
 from game import Game
 
+canvas = None
+game = None
+
 def onHit():
     pass
 
@@ -8,12 +11,23 @@ def onStand():
     pass
 
 def onStart():
-    pass
+    global game
+    game = Game()
+    dealCard()
+
+def dealCard():
+    if game:
+        card = game.dealCard()
+        print(f"Card:{card}")
+        # animation
+        cardImage = tk.PhotoImage(file=card)
+        canvas.create_image(50, 50, image=card)
 
 def init():
     root = tk.Tk()
     root.title("Blackjack")
 
+    global canvas
     canvas = tk.Canvas(root, width=960, height=720, bg="darkgreen")
     canvas.pack()
 
