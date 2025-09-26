@@ -1,9 +1,19 @@
 import tkinter as tk
 from game import Game
 
-class Ui:
-    def __init__(self, root):
-        self.root = root
-        self.game = Game()
-        self.canvas = tk.Canvas(root, width=950, height=710, bg="darkgreen")
-        self.canvas.pack()
+def init():
+    root = tk.Tk()
+    root.title("Blackjack")
+
+    canvas = tk.Canvas(root, width=960, height=720, bg="darkgreen")
+    canvas.pack()
+
+    controlsFrame = tk.Frame(root)
+    controlsFrame.pack(fill="x")
+
+    hitButton = tk.Button(controlsFrame, text="Hit", width=10)
+    hitButton.pack(side="right", pady=10, padx=10)
+    standButton = tk.Button(controlsFrame, text="Stand", width=10)
+    standButton.pack(side="right", pady=10, padx=10)
+
+    root.mainloop()
