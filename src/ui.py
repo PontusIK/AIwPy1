@@ -62,7 +62,11 @@ def placeCard(participant, imageId):
 
 def resetCanvas():
     global images
+    global dealerHand
+    global playerHand
     images = []
+    dealerHand = []
+    playerHand = []
 
 def init():
     root = tk.Tk()
