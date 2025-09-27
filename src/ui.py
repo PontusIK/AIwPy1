@@ -1,5 +1,6 @@
 import tkinter as tk
 from game import Game
+import card
 
 canvas = None
 game = None
@@ -15,14 +16,38 @@ def onStart():
     _ = resetCanvas()
     global game
     game = Game()
+
+    deckImage = tk.PhotoImage(file=card.backSidePath())
+    deckImage = deckImage.zoom(2)
+    images.append(deckImage)
+    canvas.create_image(960/2, 720/2, image=deckImage)
+
+    dealCard("player")
+    dealCard("player")
+    dealCard("dealer")
     dealCard("dealer")
 
 def dealCard(participant):
-    card = game.dealCard(participant)
-    # animation
-    cardImage = tk.PhotoImage(file=card)
+    cardPath = game.dealCard(participant)
+    cardImage = tk.PhotoImage(file=cardPath)
+    cardImage = cardImage.zoom(2)
     images.append(cardImage)
-    canvas.create_image(50, 50, image=cardImage)
+    imageId = canvas.create_image(50, 50, image=cardImage,
+        anchor="se" if participant == "player" else "ne"
+    )
+    _ = placeCard(participant, imageId)
+
+def placeCard(participant, imageId):
+    xCoord = 960-10
+    yCoord = 0
+
+    if participant == "player":
+        yCoord = 720-10
+    else:
+        yCoord = 10
+
+    canvas.coords(imageId, xCoord, yCoord)
+    canvas.move(imageId, 0, 0)
 
 def resetCanvas():
     global images
