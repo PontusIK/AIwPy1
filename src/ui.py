@@ -19,10 +19,11 @@ def onStart():
     global game
     game = Game()
 
-    deckImage = tk.PhotoImage(file=card.backSidePath())
-    deckImage = deckImage.zoom(2)
-    images.append(deckImage)
-    canvas.create_image(960/2, 720/2, image=deckImage)
+    for i in range(3):
+        deckImage = tk.PhotoImage(file=card.backSidePath())
+        deckImage = deckImage.zoom(2)
+        images.append(deckImage)
+        canvas.create_image((960/2)-(i*3), (720/2)-(i*3), image=deckImage)
 
     dealCard("player")
     dealCard("player")
