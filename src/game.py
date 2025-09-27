@@ -1,6 +1,5 @@
 from deck import Deck
 from hand import Hand
-from card import Card
 
 class Game:
     def __init__(self):
@@ -8,5 +7,15 @@ class Game:
         self.playerHand = Hand()
         self.dealerHand = Hand()
 
-    def dealCard(self):
-        return self.deck.draw().path
+    def dealCard(self, participant):
+        card = self.deck.draw()
+
+        if participant == "player":
+            self.playerHand.addCard(card)
+        else:
+            self.dealerHand.addCard(card)
+
+        if self.dealerHand.count() == 1:
+            return card.backSidePath()
+        else:
+            return card.path

@@ -3,6 +3,7 @@ from game import Game
 
 canvas = None
 game = None
+images = []
 
 def onHit():
     pass
@@ -11,17 +12,21 @@ def onStand():
     pass
 
 def onStart():
+    _ = resetCanvas()
     global game
     game = Game()
-    dealCard()
+    dealCard("dealer")
 
-def dealCard():
-    if game:
-        card = game.dealCard()
-        print(f"Card:{card}")
-        # animation
-        cardImage = tk.PhotoImage(file=card)
-        canvas.create_image(50, 50, image=card)
+def dealCard(participant):
+    card = game.dealCard(participant)
+    # animation
+    cardImage = tk.PhotoImage(file=card)
+    images.append(cardImage)
+    canvas.create_image(50, 50, image=cardImage)
+
+def resetCanvas():
+    global images
+    images = []
 
 def init():
     root = tk.Tk()

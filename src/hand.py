@@ -4,3 +4,6 @@ class Hand:
 
     def addCard(self, card):
         self.cards.append(card)
+
+    def count(self):
+        return len(self.cards)
