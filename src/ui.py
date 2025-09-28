@@ -7,17 +7,24 @@ game = None
 images = []
 dealerHand = []
 playerHand = []
+playerTurn = False
 
 def onHit():
-    pass
+    if playerTurn:
+        dealCard("player")
 
 def onStand():
-    pass
+    global playerTurn
+    if playerTurn:
+        playerTurn = False
+
 
 def onStart():
     _ = resetCanvas()
     global game
     game = Game()
+    global playerTurn
+    playerTurn = True
 
     for i in range(3):
         deckImage = tk.PhotoImage(file=card.backSidePath())
