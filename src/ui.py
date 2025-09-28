@@ -28,9 +28,9 @@ def onStart():
 
     for i in range(3):
         deckImage = tk.PhotoImage(file=card.backSidePath())
-        deckImage = deckImage.zoom(2)
+        deckImage = deckImage.zoom(3)
         images.append(deckImage)
-        canvas.create_image((960/2)-(i*3), (720/2)-(i*3), image=deckImage)
+        canvas.create_image((960/2)-(i*6), (720/2)-(i*6), image=deckImage)
 
     dealCard("player")
     dealCard("player")
@@ -40,7 +40,7 @@ def onStart():
 def dealCard(participant):
     cardPath = game.dealCard(participant)
     cardImage = tk.PhotoImage(file=cardPath)
-    cardImage = cardImage.zoom(2)
+    cardImage = cardImage.zoom(3)
     images.append(cardImage)
     imageId = canvas.create_image(50, 50, image=cardImage,
         anchor="se" if participant == "player" else "ne"
@@ -52,16 +52,16 @@ def dealCard(participant):
     _ = placeCard(participant, imageId)
 
 def placeCard(participant, imageId):
-    xCoord = 960-10
+    xCoord = 960
     yCoord = 0
     offset = 0
 
     if participant == "player":
         yCoord = 720-10
-        offset = -(len(playerHand)-1)*(64*1.5)
+        offset = -(len(playerHand)-1)*(64*2.1)
     else:
         yCoord = 10
-        offset = -(len(dealerHand)-1)*(64*1.5)
+        offset = -(len(dealerHand)-1)*(64*2.1)
 
     print(offset)
     canvas.coords(imageId, xCoord, yCoord)
