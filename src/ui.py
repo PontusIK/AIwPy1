@@ -17,7 +17,13 @@ def onStand():
     global playerTurn
     if playerTurn:
         playerTurn = False
+        _ = showDealerHiddenCard()
+        if game.getScore("player") < 21:
+            while game.getScore("dealer") < 17:
+                dealCard("dealer")
 
+def showDealerHiddenCard():
+    pass
 
 def onStart():
     _ = resetCanvas()
@@ -63,7 +69,6 @@ def placeCard(participant, imageId):
         yCoord = 10
         offset = -(len(dealerHand)-1)*(64*2.1)
 
-    print(offset)
     canvas.coords(imageId, xCoord, yCoord)
     canvas.move(imageId, offset, 0)
 
