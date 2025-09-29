@@ -22,22 +22,31 @@ class Game:
             return dealtCard.path
 
     def getScore(self, participant):
+        possibleScores = self.calculateScores(participant)
+        bestScore = possibleScores[0]
+        for score in possibleScores:
+            if score > bestScore and score <= 21:
+                bestScore = score
+        return bestScore
+
+    def calculateScores(self, participant):
         hand = self.playerHand if participant == "player" else self.dealerHand
-        score1 = score(hand, 1)
-        score2 = score(hand, 11)
-        if score2 > 21:
-            return score1
-        else:
-            return score2
 
-def score(hand: Hand, aceValue: int):
-    score = 0
-    for card in hand.cards:
-        if card.rank == "A":
-            score += aceValue
-        elif card.rank == "J" or card.rank == "Q" or card.rank == "K":
-            score += 10
-        else:
-            score += int(card.rank)
+        cardValues = []
+        for card in hand.cards:
+            if card.rank in ["J", "Q", "K"]:
+                cardValues.append([10])
+            elif card.rank == "A":
+                cardValues.append([1, 11])
+            else:
+                cardValues.append([int(card.rank)])
 
-    return score
+        possibleScores = [0]
+        for values in cardValues:
+            tmpScores = []
+            for score in possibleScores:
+                for value in values:
+                    tmpScores.append(score + value)
+            possibleScores = tmpScores
+
+        return possibleScores

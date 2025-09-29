@@ -21,6 +21,9 @@ def onStand():
         if game.getScore("player") < 21:
             while game.getScore("dealer") < 17:
                 dealCard("dealer")
+    print(f"player: {game.getScore("player")}")
+    print(f"dealer: {game.getScore("dealer")}")
+
 
 def showDealerHiddenCard():
     pass
