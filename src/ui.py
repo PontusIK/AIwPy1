@@ -17,16 +17,19 @@ def onStand():
     global playerTurn
     if playerTurn:
         playerTurn = False
-        _ = showDealerHiddenCard()
         if game.getScore("player") <= 21:
             while game.getScore("dealer") < 17:
                 dealCard("dealer")
         winner = game.getWinner()
+        _ = showDealerHiddenCard()
         print(f"Winner: {winner}")
-
+        print(f"Score: {game.getScore(winner)}")
 
 def showDealerHiddenCard():
-    pass
+    face = tk.PhotoImage(file=game.dealerHand.cards[0].path)
+    face = face.zoom(3)
+    images.append(face)
+    canvas.itemconfig(dealerHand[0], image=face)
 
 def onStart():
     _ = resetCanvas()
