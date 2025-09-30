@@ -50,3 +50,13 @@ class Game:
             possibleScores = tmpScores
 
         return possibleScores
+
+    def getWinner(self):
+        playerScore = self.getScore("player")
+        dealerScore = self.getScore("dealer")
+        if playerScore > 21:
+            return "dealer"
+        if dealerScore > 21:
+            return "player"
+        return "dealer" if dealerScore >= playerScore else "player"
+

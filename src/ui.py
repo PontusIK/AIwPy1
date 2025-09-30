@@ -18,11 +18,11 @@ def onStand():
     if playerTurn:
         playerTurn = False
         _ = showDealerHiddenCard()
-        if game.getScore("player") < 21:
+        if game.getScore("player") <= 21:
             while game.getScore("dealer") < 17:
                 dealCard("dealer")
-    print(f"player: {game.getScore("player")}")
-    print(f"dealer: {game.getScore("dealer")}")
+        winner = game.getWinner()
+        print(f"Winner: {winner}")
 
 
 def showDealerHiddenCard():
