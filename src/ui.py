@@ -57,14 +57,24 @@ class GameScreen(tk.Frame):
         self.dealCard("dealer")
 
     def resetCanvas(self):
-        pass
+        self.photoImages = []
+        self.playerTurn = []
+        self.dealerHand = []
 
     def onHit(self):
         if self.playerTurn:
             self.dealCard("player")
 
     def onStand(self):
-        pass
+        if self.playerTurn:
+            self.playerTurn = False
+            if self.game.getScore("player") <= 21:
+                while self.game.getScore("dealer") < 17:
+                    self.dealCard("dealer")
+
+            face = tk.PhotoImage(file=self.game.dealerHand.cards[0].path).zoom(3)
+            self.photoImages.append(face)
+            self.canvas.itemconfig(self.dealerHand[0], image=face)
 
     def dealCard(self, participant):
         pass
