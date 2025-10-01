@@ -11,12 +11,12 @@ class Window(tk.Tk):
         self.container.pack(fill="both", expand=True)
 
         self.frames = {}
-        for F in (GameScreen, GameOverScreen):
+        for F in (GameScreen, GameOverScreen, WelcomeScreen):
             frame = F(self.container, self)
             self.frames[F] = frame
             frame.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-        self.showFrame(GameScreen)
+        self.showFrame(WelcomeScreen)
 
     def showFrame(self, screenClass):
         frame = self.frames[screenClass]
@@ -80,6 +80,10 @@ class GameScreen(tk.Frame):
         pass
 
 class GameOverScreen(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+
+class WelcomeScreen(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
 
