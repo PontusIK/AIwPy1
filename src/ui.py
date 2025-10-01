@@ -1,4 +1,6 @@
 import tkinter as tk
+from game import Game
+import card
 
 class Window(tk.Tk):
     def __init__(self):
@@ -24,17 +26,47 @@ class GameScreen(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
 
-        tk.Canvas(self, width=960, height=720, bg="darkgreen").pack()
+        self.canvas = tk.Canvas(self, width=960, height=720, bg="darkgreen")
+        self.canvas.pack()
         controlsFrame = tk.Frame(self)
         controlsFrame.pack(fill="x")
 
         tk.Button(controlsFrame, text="Hit", width=10, command=self.onHit).pack(side="right", pady=10, padx=10)
         tk.Button(controlsFrame, text="Stand", width=10, command=self.onStand).pack(side="right", pady=10, padx=10)
 
-    def onHit(self):
+        self.game = None
+        self.playerTurn = False
+        self.photoImages = []
+        self.playerHand = []
+        self.dealerHand = []
+
+    def start(self):
+        self.resetCanvas()
+        self.game = Game()
+        self.playerTurn = True
+
+        for i in range(3):
+            deckImage = tk.PhotoImage(file=card.backSidePath())
+            deckImage = deckImage.zoom(3)
+            self.photoImages.append(deckImage)
+            self.canvas.create_image((960/2)-(i*6), (720/2)-(i*6), image=deckImage)
+
+        self.dealCard("player")
+        self.dealCard("player")
+        self.dealCard("dealer")
+        self.dealCard("dealer")
+
+    def resetCanvas(self):
         pass
 
+    def onHit(self):
+        if self.playerTurn:
+            self.dealCard("player")
+
     def onStand(self):
+        pass
+
+    def dealCard(self, participant):
         pass
 
 class GameOverScreen(tk.Frame):
