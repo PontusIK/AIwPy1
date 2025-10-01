@@ -46,8 +46,7 @@ class GameScreen(tk.Frame):
         self.playerTurn = True
 
         for i in range(3):
-            deckImage = tk.PhotoImage(file=card.backSidePath())
-            deckImage = deckImage.zoom(3)
+            deckImage = tk.PhotoImage(file=card.backSidePath()).zoom(3)
             self.photoImages.append(deckImage)
             self.canvas.create_image((960/2)-(i*6), (720/2)-(i*6), image=deckImage)
 
@@ -77,7 +76,33 @@ class GameScreen(tk.Frame):
             self.canvas.itemconfig(self.dealerHand[0], image=face)
 
     def dealCard(self, participant):
-        pass
+        cardPath = self.game.dealCard(participant)
+        cardImage = tk.PhotoImage(file=cardPath).zoom(3)
+        self.photoImages.append(cardImage)
+        imageId = self.canvas.create_image(image=cardImage,
+            anchor="se" if participant == "player" else "ne"
+        )
+        if participant == "player":
+            self.playerHand.append(imageId)
+        else:
+            self.dealerHand.append(imageId)
+
+        self.placeCard(participant, imageId)
+
+    def placeCard(self, participant, imageId):
+        xCoord = 960
+        yCoord = 0
+        offset = 0
+
+        if participant == "player":
+            yCoord = 720-10
+            offset = -(len(self.playerHand)-1)*(64*2.1)
+        else:
+            yCoord = 10
+            offset = -(len(self.dealerHand)-1)*(64*2.1)
+
+        self.canvas.coords(imageId, xCoord, yCoord)
+        self.canvas.move(imageId, offset, 0)
 
 class GameOverScreen(tk.Frame):
     def __init__(self, parent, controller):
