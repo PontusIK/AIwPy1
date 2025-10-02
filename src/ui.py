@@ -6,7 +6,7 @@ class Window(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("BlackJack")
-        self.geometry("960x800")
+        self.geometry("960x780")
         self.container = tk.Frame(self)
         self.container.pack(fill="both", expand=True)
 
@@ -31,8 +31,23 @@ class GameScreen(tk.Frame):
         controlsFrame = tk.Frame(self)
         controlsFrame.pack(fill="x")
 
-        tk.Button(controlsFrame, text="Hit", width=10, command=self.onHit).pack(side="right", pady=10, padx=10)
-        tk.Button(controlsFrame, text="Stand", width=10, command=self.onStand).pack(side="right", pady=10, padx=10)
+        tk.Button(
+            controlsFrame,
+            text="Hit",
+            width=10,
+            font=("Times", 12, "bold"),
+            bd=3,
+            command=self.onHit
+        ).pack(side="right", pady=10, padx=10)
+
+        tk.Button(
+            controlsFrame,
+            text="Stand",
+            width=10,
+            font=("Times", 12, "bold"),
+            bd=3,
+            command=self.onStand
+        ).pack(side="right", pady=10, padx=10)
 
         self.game = None
         self.playerTurn = False
@@ -117,8 +132,24 @@ class WelcomeScreen(tk.Frame):
         frame = tk.Frame(self, bg="darkgreen")
         frame.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-        tk.Label(frame, text="BlackJack", bg="darkgreen").pack(pady=300)
-        tk.Button(frame, text="Start", command=lambda: controller.showFrame(GameScreen)).pack()
+        tk.Label(
+            frame,
+            text="BlackJack",
+            font=("Times", 48, "bold"),
+            fg="white",
+            bg="darkgreen"
+        ).pack(pady=(230, 10))
+
+        tk.Button(
+            frame,
+            text="Start",
+            font=("Times", 18, "bold"),
+            bd=3,
+            command=lambda: controller.showFrame(GameScreen)
+        ).pack()
+
+        frame.update_idletasks()
+        frame.pack_propagate(False)
 
 def init():
     ui = Window()
