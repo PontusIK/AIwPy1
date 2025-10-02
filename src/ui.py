@@ -40,6 +40,8 @@ class GameScreen(tk.Frame):
         self.playerHand = []
         self.dealerHand = []
 
+        self.start()
+
     def start(self):
         self.resetCanvas()
         self.game = Game()
@@ -79,7 +81,7 @@ class GameScreen(tk.Frame):
         cardPath = self.game.dealCard(participant)
         cardImage = tk.PhotoImage(file=cardPath).zoom(3)
         self.photoImages.append(cardImage)
-        imageId = self.canvas.create_image(image=cardImage,
+        imageId = self.canvas.create_image(50, 50, image=cardImage,
             anchor="se" if participant == "player" else "ne"
         )
         if participant == "player":
@@ -111,6 +113,12 @@ class GameOverScreen(tk.Frame):
 class WelcomeScreen(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
+
+        frame = tk.Frame(self, bg="darkgreen")
+        frame.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+        tk.Label(frame, text="BlackJack", bg="darkgreen").pack(pady=300)
+        tk.Button(frame, text="Start", command=lambda: controller.showFrame(GameScreen)).pack()
 
 def init():
     ui = Window()
