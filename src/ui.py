@@ -49,6 +49,7 @@ class GameScreen(tk.Frame):
             command=self.onStand
         ).pack(side="right", pady=10, padx=10)
 
+        self.controller = controller
         self.game = None
         self.playerTurn = False
         self.photoImages = []
@@ -92,6 +93,8 @@ class GameScreen(tk.Frame):
             self.photoImages.append(face)
             self.canvas.itemconfig(self.dealerHand[0], image=face)
 
+            self.controller.showFrame(GameOverScreen)
+
     def dealCard(self, participant):
         cardPath = self.game.dealCard(participant)
         cardImage = tk.PhotoImage(file=cardPath).zoom(3)
@@ -124,6 +127,33 @@ class GameScreen(tk.Frame):
 class GameOverScreen(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
+
+        frame = tk.Frame(self, bg="darkgreen")
+        frame.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+        tk.Label(
+            frame,
+            text="Winner IDK",
+            font=("Times", 48, "bold"),
+            fg="white",
+            bg="darkgreen"
+        ).pack(pady=(230, 10))
+
+        tk.Button(
+            frame,
+            text="New Game",
+            font=("Times", 18, "bold"),
+            bd=3,
+            command=lambda: controller.showFrame(GameScreen)
+        ).pack()
+
+        tk.Button(
+            frame,
+            text="Quit",
+            font=("Times", 18, "bold"),
+            bd=3,
+            command=controller.destroy
+        ).pack(pady=10)
 
 class WelcomeScreen(tk.Frame):
     def __init__(self, parent, controller):
