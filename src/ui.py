@@ -2,106 +2,189 @@ import tkinter as tk
 from game import Game
 import card
 
-canvas = None
-game = None
-images = []
-dealerHand = []
-playerHand = []
-playerTurn = False
+class Window(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("BlackJack")
+        self.geometry("960x780")
+        self.container = tk.Frame(self)
+        self.container.pack(fill="both", expand=True)
 
-def onHit():
-    if playerTurn:
-        dealCard("player")
+        self.frames = {}
+        for F in (GameScreen, GameOverScreen, WelcomeScreen):
+            frame = F(self.container, self)
+            self.frames[F] = frame
+            frame.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-def onStand():
-    global playerTurn
-    if playerTurn:
-        playerTurn = False
-        if game.getScore("player") <= 21:
-            while game.getScore("dealer") < 17:
-                dealCard("dealer")
-        winner = game.getWinner()
-        _ = showDealerHiddenCard()
-        print(f"Winner: {winner}")
-        print(f"Score: {game.getScore(winner)}")
+        self.showFrame(WelcomeScreen)
 
-def showDealerHiddenCard():
-    face = tk.PhotoImage(file=game.dealerHand.cards[0].path)
-    face = face.zoom(3)
-    images.append(face)
-    canvas.itemconfig(dealerHand[0], image=face)
+    def showFrame(self, screenClass):
+        frame = self.frames[screenClass]
+        frame.tkraise()
 
-def onStart():
-    _ = resetCanvas()
-    global game
-    game = Game()
-    global playerTurn
-    playerTurn = True
+    def newGame(self):
+        self.game = Game()
+        self.showFrame(GameScreen)
 
-    for i in range(3):
-        deckImage = tk.PhotoImage(file=card.backSidePath())
-        deckImage = deckImage.zoom(3)
-        images.append(deckImage)
-        canvas.create_image((960/2)-(i*6), (720/2)-(i*6), image=deckImage)
+class GameScreen(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
 
-    dealCard("player")
-    dealCard("player")
-    dealCard("dealer")
-    dealCard("dealer")
+        self.canvas = tk.Canvas(self, width=960, height=720, bg="darkgreen")
+        self.canvas.pack()
+        controlsFrame = tk.Frame(self)
+        controlsFrame.pack(fill="x")
 
-def dealCard(participant):
-    cardPath = game.dealCard(participant)
-    cardImage = tk.PhotoImage(file=cardPath)
-    cardImage = cardImage.zoom(3)
-    images.append(cardImage)
-    imageId = canvas.create_image(50, 50, image=cardImage,
-        anchor="se" if participant == "player" else "ne"
-    )
-    if participant == "player":
-        playerHand.append(imageId)
-    else:
-        dealerHand.append(imageId)
-    _ = placeCard(participant, imageId)
+        tk.Button(
+            controlsFrame,
+            text="Hit",
+            width=10,
+            font=("Times", 12, "bold"),
+            bd=3,
+            command=self.onHit
+        ).pack(side="right", pady=10, padx=10)
 
-def placeCard(participant, imageId):
-    xCoord = 960
-    yCoord = 0
-    offset = 0
+        tk.Button(
+            controlsFrame,
+            text="Stand",
+            width=10,
+            font=("Times", 12, "bold"),
+            bd=3,
+            command=self.onStand
+        ).pack(side="right", pady=10, padx=10)
 
-    if participant == "player":
-        yCoord = 720-10
-        offset = -(len(playerHand)-1)*(64*2.1)
-    else:
-        yCoord = 10
-        offset = -(len(dealerHand)-1)*(64*2.1)
+        self.controller = controller
+        self.playerTurn = False
+        self.photoImages = []
+        self.playerHand = []
+        self.dealerHand = []
 
-    canvas.coords(imageId, xCoord, yCoord)
-    canvas.move(imageId, offset, 0)
+    def tkraise(self, aboveThis=None):
+        super().tkraise(aboveThis)
+        self.resetCanvas()
+        self.playerTurn = True
 
-def resetCanvas():
-    global images
-    global dealerHand
-    global playerHand
-    images = []
-    dealerHand = []
-    playerHand = []
+        for i in range(3):
+            deckImage = tk.PhotoImage(file=card.backSidePath()).zoom(3)
+            self.photoImages.append(deckImage)
+            self.canvas.create_image((960/2)-(i*6), (720/2)-(i*6), image=deckImage)
+
+        self.dealCard("player")
+        self.dealCard("player")
+        self.dealCard("dealer")
+        self.dealCard("dealer")
+
+    def resetCanvas(self):
+        self.photoImages = []
+        self.playerHand = []
+        self.dealerHand = []
+
+    def onHit(self):
+        if self.playerTurn:
+            self.dealCard("player")
+
+    def onStand(self):
+        if self.playerTurn:
+            self.playerTurn = False
+            if self.controller.game.getScore("player") <= 21:
+                while self.controller.game.getScore("dealer") < 17:
+                    self.dealCard("dealer")
+
+            face = tk.PhotoImage(file=self.controller.game.dealerHand.cards[0].path).zoom(3)
+            self.photoImages.append(face)
+            self.canvas.itemconfig(self.dealerHand[0], image=face)
+
+            self.controller.showFrame(GameOverScreen)
+
+    def dealCard(self, participant):
+        cardPath = self.controller.game.dealCard(participant)
+        cardImage = tk.PhotoImage(file=cardPath).zoom(3)
+        self.photoImages.append(cardImage)
+        imageId = self.canvas.create_image(50, 50, image=cardImage,
+            anchor="se" if participant == "player" else "ne"
+        )
+        if participant == "player":
+            self.playerHand.append(imageId)
+        else:
+            self.dealerHand.append(imageId)
+
+        self.placeCard(participant, imageId)
+
+    def placeCard(self, participant, imageId):
+        xCoord = 960
+        yCoord = 0
+        offset = 0
+
+        if participant == "player":
+            yCoord = 720-10
+            offset = -(len(self.playerHand)-1)*(64*2.1)
+        else:
+            yCoord = 10
+            offset = -(len(self.dealerHand)-1)*(64*2.1)
+
+        self.canvas.coords(imageId, xCoord, yCoord)
+        self.canvas.move(imageId, offset, 0)
+
+class GameOverScreen(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        self.controller = controller
+
+        frame = tk.Frame(self, bg="darkgreen")
+        frame.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+        self.winner = tk.StringVar()
+        tk.Label(
+            frame,
+            textvariable=self.winner,
+            font=("Times", 48, "bold"),
+            fg="white",
+            bg="darkgreen"
+        ).pack(pady=(230, 10))
+
+        tk.Button(
+            frame,
+            text="New Game",
+            font=("Times", 18, "bold"),
+            bd=3,
+            command=lambda: controller.newGame()
+        ).pack()
+
+        tk.Button(
+            frame,
+            text="Quit",
+            font=("Times", 18, "bold"),
+            bd=3,
+            command=controller.destroy
+        ).pack(pady=10)
+
+    def tkraise(self, aboveThis=None):
+        super().tkraise(aboveThis)
+        self.winner.set(f"Winner: {self.controller.game.getWinner()}")
+
+class WelcomeScreen(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+
+        frame = tk.Frame(self, bg="darkgreen")
+        frame.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+        tk.Label(
+            frame,
+            text="BlackJack",
+            font=("Times", 48, "bold"),
+            fg="white",
+            bg="darkgreen"
+        ).pack(pady=(230, 10))
+
+        tk.Button(
+            frame,
+            text="Start",
+            font=("Times", 18, "bold"),
+            bd=3,
+            command=lambda: controller.newGame()
+        ).pack()
 
 def init():
-    root = tk.Tk()
-    root.title("Blackjack")
-
-    global canvas
-    canvas = tk.Canvas(root, width=960, height=720, bg="darkgreen")
-    canvas.pack()
-
-    controlsFrame = tk.Frame(root)
-    controlsFrame.pack(fill="x")
-
-    hitButton = tk.Button(controlsFrame, text="Hit", width=10, command=onHit)
-    hitButton.pack(side="right", pady=10, padx=10)
-    standButton = tk.Button(controlsFrame, text="Stand", width=10, command=onStand)
-    standButton.pack(side="right", pady=10, padx=10)
-    startButton = tk.Button(controlsFrame, text="New Game", width=10, command=onStart)
-    startButton.pack(side="left", pady=10, padx=10)
-
-    root.mainloop()
+    ui = Window()
+    ui.mainloop()
