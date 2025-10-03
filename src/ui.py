@@ -122,22 +122,21 @@ class GameScreen(tk.Frame):
             yCoord = 10
             offset = -(len(self.dealerHand)-1)*(64*2.1)
 
-        print(f"playerHand: {len(self.playerHand)}")
-        print(f"dealerHand: {len(self.dealerHand)}")
-        print(f"offset: {offset}")
         self.canvas.coords(imageId, xCoord, yCoord)
         self.canvas.move(imageId, offset, 0)
 
 class GameOverScreen(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
+        self.controller = controller
 
         frame = tk.Frame(self, bg="darkgreen")
         frame.place(relx=0, rely=0, relwidth=1, relheight=1)
 
+        self.winner = tk.StringVar()
         tk.Label(
             frame,
-            text="Winner IDK",
+            textvariable=self.winner,
             font=("Times", 48, "bold"),
             fg="white",
             bg="darkgreen"
@@ -158,6 +157,10 @@ class GameOverScreen(tk.Frame):
             bd=3,
             command=controller.destroy
         ).pack(pady=10)
+
+    def tkraise(self, aboveThis=None):
+        super().tkraise(aboveThis)
+        self.winner.set(f"Winner: {self.controller.game.getWinner()}")
 
 class WelcomeScreen(tk.Frame):
     def __init__(self, parent, controller):
