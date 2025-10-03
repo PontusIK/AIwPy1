@@ -22,6 +22,10 @@ class Window(tk.Tk):
         frame = self.frames[screenClass]
         frame.tkraise()
 
+    def newGame(self):
+        self.game = Game()
+        self.showFrame(GameScreen)
+
 class GameScreen(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
@@ -50,17 +54,14 @@ class GameScreen(tk.Frame):
         ).pack(side="right", pady=10, padx=10)
 
         self.controller = controller
-        self.game = None
         self.playerTurn = False
         self.photoImages = []
         self.playerHand = []
         self.dealerHand = []
 
-        self.start()
-
-    def start(self):
+    def tkraise(self, aboveThis=None):
+        super().tkraise(aboveThis)
         self.resetCanvas()
-        self.game = Game()
         self.playerTurn = True
 
         for i in range(3):
@@ -75,7 +76,7 @@ class GameScreen(tk.Frame):
 
     def resetCanvas(self):
         self.photoImages = []
-        self.playerTurn = []
+        self.playerHand = []
         self.dealerHand = []
 
     def onHit(self):
@@ -85,18 +86,18 @@ class GameScreen(tk.Frame):
     def onStand(self):
         if self.playerTurn:
             self.playerTurn = False
-            if self.game.getScore("player") <= 21:
-                while self.game.getScore("dealer") < 17:
+            if self.controller.game.getScore("player") <= 21:
+                while self.controller.game.getScore("dealer") < 17:
                     self.dealCard("dealer")
 
-            face = tk.PhotoImage(file=self.game.dealerHand.cards[0].path).zoom(3)
+            face = tk.PhotoImage(file=self.controller.game.dealerHand.cards[0].path).zoom(3)
             self.photoImages.append(face)
             self.canvas.itemconfig(self.dealerHand[0], image=face)
 
             self.controller.showFrame(GameOverScreen)
 
     def dealCard(self, participant):
-        cardPath = self.game.dealCard(participant)
+        cardPath = self.controller.game.dealCard(participant)
         cardImage = tk.PhotoImage(file=cardPath).zoom(3)
         self.photoImages.append(cardImage)
         imageId = self.canvas.create_image(50, 50, image=cardImage,
@@ -121,6 +122,9 @@ class GameScreen(tk.Frame):
             yCoord = 10
             offset = -(len(self.dealerHand)-1)*(64*2.1)
 
+        print(f"playerHand: {len(self.playerHand)}")
+        print(f"dealerHand: {len(self.dealerHand)}")
+        print(f"offset: {offset}")
         self.canvas.coords(imageId, xCoord, yCoord)
         self.canvas.move(imageId, offset, 0)
 
@@ -144,7 +148,7 @@ class GameOverScreen(tk.Frame):
             text="New Game",
             font=("Times", 18, "bold"),
             bd=3,
-            command=lambda: controller.showFrame(GameScreen)
+            command=lambda: controller.newGame()
         ).pack()
 
         tk.Button(
@@ -175,11 +179,8 @@ class WelcomeScreen(tk.Frame):
             text="Start",
             font=("Times", 18, "bold"),
             bd=3,
-            command=lambda: controller.showFrame(GameScreen)
+            command=lambda: controller.newGame()
         ).pack()
-
-        frame.update_idletasks()
-        frame.pack_propagate(False)
 
 def init():
     ui = Window()
