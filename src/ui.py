@@ -100,6 +100,8 @@ class GameScreen(tk.Frame):
     def onHit(self):
         if self.playerTurn:
             self.dealCard("player")
+            if self.controller.game.getScore("player") > 21:
+                self.onStand()
 
     def onStand(self):
         if self.playerTurn:
@@ -113,7 +115,7 @@ class GameScreen(tk.Frame):
                 if self.controller.game.getScore("player") <= 21:
                     if self.controller.game.getScore("dealer") < 17:
                         self.dealCard("dealer")
-                        self.after(300, dealToDealer)
+                        self.after(400, dealToDealer)
             dealToDealer()
 
             if self.controller.game.getWinner() == "player":
