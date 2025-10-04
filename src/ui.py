@@ -35,8 +35,8 @@ class GameScreen(tk.Frame):
         self.photoImages = []
         self.playerHand = []
         self.dealerHand = []
-        self.scoreText = tk.StringVar(value="Score: - ")
-        self.score = 0
+        self.scoreText = tk.StringVar(value="Score: 1000 ")
+        self.score = 1000
 
         self.canvas = tk.Canvas(self, width=960, height=720, bg="darkgreen")
         self.canvas.pack()
@@ -122,6 +122,9 @@ class GameScreen(tk.Frame):
                 self.score -= 100
 
             self.scoreText.set(f"Score: {self.score} ")
+            
+            if self.score <= 0:
+                self.canvas.after(1000, self.controller.showFrame, GameOverScreen)
 
     def dealCard(self, participant):
         cardPath = self.controller.game.dealCard(participant)
