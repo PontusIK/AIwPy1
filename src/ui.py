@@ -5,6 +5,8 @@ import card
 class Window(tk.Tk):
     def __init__(self):
         super().__init__()
+        self.score = 1000
+
         self.title("BlackJack")
         self.geometry("960x780")
         self.container = tk.Frame(self)
@@ -26,6 +28,10 @@ class Window(tk.Tk):
         self.game = Game()
         self.showFrame(GameScreen)
 
+    def restart(self):
+        self.score = 1000
+        self.newGame()
+
 class GameScreen(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
@@ -36,7 +42,6 @@ class GameScreen(tk.Frame):
         self.playerHand = []
         self.dealerHand = []
         self.scoreText = tk.StringVar(value="Score: 1000 ")
-        self.score = 1000
 
         self.canvas = tk.Canvas(self, width=960, height=720, bg="darkgreen")
         self.canvas.pack()
@@ -93,6 +98,7 @@ class GameScreen(tk.Frame):
         self.dealCard("dealer")
 
     def resetCanvas(self):
+        self.scoreText.set(f"Score: {self.controller.score} ")
         self.photoImages = []
         self.playerHand = []
         self.dealerHand = []
@@ -119,13 +125,13 @@ class GameScreen(tk.Frame):
             dealToDealer()
 
             if self.controller.game.getWinner() == "player":
-                self.score += 100
+                self.controller.score += 100
             else:
-                self.score -= 100
+                self.controller.score -= 100
 
-            self.scoreText.set(f"Score: {self.score} ")
+            self.scoreText.set(f"Score: {self.controller.score} ")
             
-            if self.score <= 0:
+            if self.controller.score <= 0:
                 self.canvas.after(1000, self.controller.showFrame, GameOverScreen)
 
     def dealCard(self, participant):
@@ -180,7 +186,7 @@ class GameOverScreen(tk.Frame):
         self.winner = tk.StringVar()
         tk.Label(
             frame,
-            textvariable=self.winner,
+            text="You Lose",
             font=("Times", 48, "bold"),
             fg="white",
             bg="darkgreen"
@@ -188,10 +194,10 @@ class GameOverScreen(tk.Frame):
 
         tk.Button(
             frame,
-            text="New Game",
+            text="Restart",
             font=("Times", 18, "bold"),
             bd=3,
-            command=lambda: controller.newGame()
+            command=controller.restart
         ).pack()
 
         tk.Button(
@@ -201,10 +207,6 @@ class GameOverScreen(tk.Frame):
             bd=3,
             command=controller.destroy
         ).pack(pady=10)
-
-    def tkraise(self, aboveThis=None):
-        super().tkraise(aboveThis)
-        self.winner.set(f"Winner: {self.controller.game.getWinner()}")
 
 class WelcomeScreen(tk.Frame):
     def __init__(self, parent, controller):
