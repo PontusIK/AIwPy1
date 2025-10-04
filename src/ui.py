@@ -91,9 +91,12 @@ class GameScreen(tk.Frame):
             self.photoImages.append(face)
             self.canvas.itemconfig(self.dealerHand[0], image=face)
 
-            if self.controller.game.getScore("player") <= 21:
-                while self.controller.game.getScore("dealer") < 17:
-                    self.dealCard("dealer")
+            def dealToDealer():
+                if self.controller.game.getScore("player") <= 21:
+                    if self.controller.game.getScore("dealer") < 17:
+                        self.dealCard("dealer")
+                        self.after(300, dealToDealer)
+            dealToDealer()
 
             self.canvas.after(1000, self.controller.showFrame, GameOverScreen)
 
