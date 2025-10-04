@@ -30,6 +30,14 @@ class GameScreen(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
 
+        self.controller = controller
+        self.playerTurn = False
+        self.photoImages = []
+        self.playerHand = []
+        self.dealerHand = []
+        self.scoreText = tk.StringVar(value="Score: - ")
+        self.score = 0
+
         self.canvas = tk.Canvas(self, width=960, height=720, bg="darkgreen")
         self.canvas.pack()
         controlsFrame = tk.Frame(self)
@@ -53,11 +61,21 @@ class GameScreen(tk.Frame):
             command=self.onStand
         ).pack(side="right", pady=10, padx=10)
 
-        self.controller = controller
-        self.playerTurn = False
-        self.photoImages = []
-        self.playerHand = []
-        self.dealerHand = []
+        tk.Button(
+            controlsFrame,
+            text="New Game",
+            width=10,
+            font=("Times", 12, "bold"),
+            bd=3,
+            command=controller.newGame
+        ).pack(side="left", pady=10, padx=10)
+
+        tk.Label(
+            controlsFrame,
+            textvariable=self.scoreText,
+            width=10,
+            font=("Times", 12, "bold"),
+        ).pack(side="left", pady=10, padx=10)
 
     def tkraise(self, aboveThis=None):
         super().tkraise(aboveThis)
@@ -98,7 +116,12 @@ class GameScreen(tk.Frame):
                         self.after(300, dealToDealer)
             dealToDealer()
 
-            self.canvas.after(1000, self.controller.showFrame, GameOverScreen)
+            if self.controller.game.getWinner() == "player":
+                self.score += 100
+            else:
+                self.score -= 100
+
+            self.scoreText.set(f"Score: {self.score} ")
 
     def dealCard(self, participant):
         cardPath = self.controller.game.dealCard(participant)
