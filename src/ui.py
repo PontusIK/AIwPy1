@@ -86,21 +86,22 @@ class GameScreen(tk.Frame):
     def onStand(self):
         if self.playerTurn:
             self.playerTurn = False
-            if self.controller.game.getScore("player") <= 21:
-                while self.controller.game.getScore("dealer") < 17:
-                    self.dealCard("dealer")
 
             face = tk.PhotoImage(file=self.controller.game.dealerHand.cards[0].path).zoom(3)
             self.photoImages.append(face)
             self.canvas.itemconfig(self.dealerHand[0], image=face)
 
-            self.controller.showFrame(GameOverScreen)
+            if self.controller.game.getScore("player") <= 21:
+                while self.controller.game.getScore("dealer") < 17:
+                    self.dealCard("dealer")
+
+            self.canvas.after(1000, self.controller.showFrame, GameOverScreen)
 
     def dealCard(self, participant):
         cardPath = self.controller.game.dealCard(participant)
         cardImage = tk.PhotoImage(file=cardPath).zoom(3)
         self.photoImages.append(cardImage)
-        imageId = self.canvas.create_image(50, 50, image=cardImage,
+        imageId = self.canvas.create_image((960/2), (720/2), image=cardImage,
             anchor="se" if participant == "player" else "ne"
         )
         if participant == "player":
@@ -122,8 +123,20 @@ class GameScreen(tk.Frame):
             yCoord = 10
             offset = -(len(self.dealerHand)-1)*(64*2.1)
 
-        self.canvas.coords(imageId, xCoord, yCoord)
-        self.canvas.move(imageId, offset, 0)
+        xCoord += offset
+        
+        x0, y0 = self.canvas.coords(imageId)
+        dx = (xCoord - x0)/10
+        dy = (yCoord - y0)/10
+
+        def step(count=0):
+            if count < 10:
+                self.canvas.move(imageId, dx, dy)
+                self.canvas.after(20, step, count + 1)
+            else:
+                self.canvas.coords(imageId, xCoord, yCoord)
+
+        step()
 
 class GameOverScreen(tk.Frame):
     def __init__(self, parent, controller):
