@@ -13,3 +13,6 @@ def getAssetDir():
         
 def backSidePath():
     return os.path.join(getAssetDir(), "card_back.png")
+
+def getChip(color):
+    return os.path.join(getAssetDir(), f"chip_{color}.png")

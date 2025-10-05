@@ -6,6 +6,7 @@ class Window(tk.Tk):
     def __init__(self):
         super().__init__()
         self.score = 1000
+        self.chips = []
 
         self.title("BlackJack")
         self.geometry("960x780")
@@ -30,6 +31,7 @@ class Window(tk.Tk):
 
     def restart(self):
         self.score = 1000
+        self.chips = []
         self.newGame()
 
 class GameScreen(tk.Frame):
@@ -87,6 +89,9 @@ class GameScreen(tk.Frame):
         self.resetCanvas()
         self.playerTurn = True
 
+        self.placeChip("player")
+        self.placeChip("dealer")
+
         for i in range(3):
             deckImage = tk.PhotoImage(file=card.backSidePath()).zoom(3)
             self.photoImages.append(deckImage)
@@ -102,6 +107,28 @@ class GameScreen(tk.Frame):
         self.photoImages = []
         self.playerHand = []
         self.dealerHand = []
+
+    def placeChip(self, participant):
+        startX = 960*0.25
+        startY = 720*0.95 if participant == "player" else 720*0.05
+
+        chipImage = tk.PhotoImage(file=card.getChip("red")).zoom(3)
+        self.controller.chips.append(chipImage)
+        imageId = self.canvas.create_image(startX, startY, image=chipImage)
+
+        finalX = int(960*0.15)
+        finalY = int(720*0.5)
+        dx = (finalX-startX)/10
+        dy = (finalY-startY)/10
+
+        def step(count=0):
+            if count < 10:
+                self.canvas.move(imageId, dx, dy)
+                self.canvas.after(20, step, count+1)
+            else:
+                self.canvas.coords(imageId, finalX, finalY)
+
+        step()
 
     def onHit(self):
         if self.playerTurn:
@@ -169,7 +196,7 @@ class GameScreen(tk.Frame):
         def step(count=0):
             if count < 10:
                 self.canvas.move(imageId, dx, dy)
-                self.canvas.after(20, step, count + 1)
+                self.canvas.after(20, step, count+1)
             else:
                 self.canvas.coords(imageId, xCoord, yCoord)
 
