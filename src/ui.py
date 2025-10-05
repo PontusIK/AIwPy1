@@ -44,6 +44,7 @@ class GameScreen(tk.Frame):
         self.photoImages = []
         self.playerHand = []
         self.dealerHand = []
+        self.chips = []
         self.scoreText = tk.StringVar(value="Score: 1000 ")
 
         self.canvas = tk.Canvas(self, width=960, height=720, bg="darkgreen")
@@ -116,6 +117,7 @@ class GameScreen(tk.Frame):
         chipImage = tk.PhotoImage(file=card.getChip("red")).zoom(3)
         self.controller.chips.append(chipImage)
         imageId = self.canvas.create_image(startX, startY, image=chipImage)
+        self.chips.append(imageId)
 
         finalX = int(960*0.15)+random.randint(-10, 10)
         finalY = int(720*0.5)+random.randint(-10, 10)
@@ -146,21 +148,50 @@ class GameScreen(tk.Frame):
             self.canvas.itemconfig(self.dealerHand[0], image=face)
 
             def dealToDealer():
-                if self.controller.game.getScore("player") <= 21:
-                    if self.controller.game.getScore("dealer") < 17:
-                        self.dealCard("dealer")
-                        self.after(400, dealToDealer)
+                playerScore = self.controller.game.getScore("player")
+                dealerScore = self.controller.game.getScore("dealer")
+
+                if playerScore > 21:
+                    self.after(400, self.decideWinner)
+                    return
+
+                if dealerScore < 17:
+                    self.dealCard("dealer")
+                    self.after(400, dealToDealer)
+                else:
+                    self.after(400, self.decideWinner)
+
             dealToDealer()
 
-            if self.controller.game.getWinner() == "player":
-                self.controller.score += 100
-            else:
-                self.controller.score -= 100
+    def decideWinner(self):
+        winner = self.controller.game.getWinner()
+        finalX = int(960*0.1)+random.randint(-20, 20)
+        yOffset = 0.1 if winner == "dealer" else 0.9
+        finalY = int(720*yOffset)+random.randint(-20, 20)
 
-            self.scoreText.set(f"Score: {self.controller.score} ")
-            
-            if self.controller.score <= 0:
-                self.canvas.after(1000, self.controller.showFrame, GameOverScreen)
+        def moveChip(imageId, dx, dy, count=0):
+            if count < 10:
+                self.canvas.move(imageId, dx, dy)
+                self.after(20, lambda: moveChip(imageId, dx, dy, count+1))
+            else:
+                self.canvas.coords(imageId, finalX, finalY)
+
+        for id in self.chips:
+            x0, y0 = self.canvas.coords(id)
+            dx = (finalX - x0)/10
+            dy = (finalY - y0)/10
+            moveChip(id, dx, dy)
+        self.chips = []
+
+        if winner == "player":
+            self.controller.score += 100
+        else:
+            self.controller.score -= 100
+
+        self.scoreText.set(f"Score: {self.controller.score} ")
+
+        if self.controller.score <= 0:
+            self.after(1000, self.controller.showFrame, GameOverScreen)
 
     def dealCard(self, participant):
         cardPath = self.controller.game.dealCard(participant)
