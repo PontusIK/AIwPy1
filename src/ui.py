@@ -1,3 +1,4 @@
+import random
 import tkinter as tk
 from game import Game
 import card
@@ -116,8 +117,8 @@ class GameScreen(tk.Frame):
         self.controller.chips.append(chipImage)
         imageId = self.canvas.create_image(startX, startY, image=chipImage)
 
-        finalX = int(960*0.15)
-        finalY = int(720*0.5)
+        finalX = int(960*0.15)+random.randint(-10, 10)
+        finalY = int(720*0.5)+random.randint(-10, 10)
         dx = (finalX-startX)/10
         dy = (finalY-startY)/10
 
