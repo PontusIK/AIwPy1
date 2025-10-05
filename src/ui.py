@@ -7,7 +7,6 @@ class Window(tk.Tk):
     def __init__(self):
         super().__init__()
         self.score = 1000
-        self.chips = []
         self.playerBank = []
 
         self.title("BlackJack")
@@ -98,9 +97,8 @@ class GameScreen(tk.Frame):
             xCoord += random.randint(-20, 20)
             yCoord += random.randint(-20, 20)
             chipImage = tk.PhotoImage(file=card.getChip("red")).zoom(3)
-            self.controller.chips.append(chipImage)
             imageId = self.canvas.create_image(xCoord, yCoord, image=chipImage)
-            self.controller.playerBank.append(imageId)
+            self.controller.playerBank.append((chipImage, imageId))
 
     def tkraise(self, aboveThis=None):
         super().tkraise(aboveThis)
@@ -132,12 +130,11 @@ class GameScreen(tk.Frame):
             startY = 720*0.05
 
             chipImage = tk.PhotoImage(file=card.getChip("red")).zoom(3)
-            self.controller.chips.append(chipImage)
             imageId = self.canvas.create_image(startX, startY, image=chipImage)
-            self.bettedChips.append(imageId)
+            self.bettedChips.append((chipImage, imageId))
         else:
-            imageId = self.controller.playerBank.pop()
-            self.bettedChips.append(imageId)
+            chipImage, imageId = self.controller.playerBank.pop()
+            self.bettedChips.append((chipImage, imageId))
             startX, startY = self.canvas.coords(imageId)
 
         finalX = int(960*0.15)+random.randint(-10, 10)
@@ -197,14 +194,15 @@ class GameScreen(tk.Frame):
             else:
                 self.canvas.coords(imageId, finalX, finalY)
 
-        for id in self.bettedChips:
+        for image, id in self.bettedChips:
             x0, y0 = self.canvas.coords(id)
             dx = (finalX - x0)/10
             dy = (finalY - y0)/10
             moveChip(id, dx, dy)
             if winner == "player":
-                self.controller.playerBank.append(id)
-        self.bettedChips = []
+                self.controller.playerBank.append((image, id))
+        
+        self.after(200, self.bettedChips.clear)
 
         if winner == "player":
             self.controller.score += 100
