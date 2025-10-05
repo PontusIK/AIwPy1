@@ -8,6 +8,7 @@ class Window(tk.Tk):
         super().__init__()
         self.score = 1000
         self.chips = []
+        self.playerBank = []
 
         self.title("BlackJack")
         self.geometry("960x780")
@@ -28,11 +29,13 @@ class Window(tk.Tk):
 
     def newGame(self):
         self.game = Game()
+        print(len(self.playerBank)*100)
         self.showFrame(GameScreen)
 
     def restart(self):
         self.score = 1000
         self.chips = []
+        self.frames[GameScreen].populatePlayerBank()
         self.newGame()
 
 class GameScreen(tk.Frame):
@@ -44,7 +47,7 @@ class GameScreen(tk.Frame):
         self.photoImages = []
         self.playerHand = []
         self.dealerHand = []
-        self.chips = []
+        self.bettedChips = []
         self.scoreText = tk.StringVar(value="Score: 1000 ")
 
         self.canvas = tk.Canvas(self, width=960, height=720, bg="darkgreen")
@@ -86,13 +89,26 @@ class GameScreen(tk.Frame):
             font=("Times", 12, "bold"),
         ).pack(side="left", pady=10, padx=10)
 
+        self.populatePlayerBank()
+
+    def populatePlayerBank(self):
+        xCoord = 960*0.1
+        yCoord = 720*0.9
+        for _ in range(10):
+            xCoord += random.randint(-20, 20)
+            yCoord += random.randint(-20, 20)
+            chipImage = tk.PhotoImage(file=card.getChip("red")).zoom(3)
+            self.controller.chips.append(chipImage)
+            imageId = self.canvas.create_image(xCoord, yCoord, image=chipImage)
+            self.controller.playerBank.append(imageId)
+
     def tkraise(self, aboveThis=None):
         super().tkraise(aboveThis)
         self.resetCanvas()
         self.playerTurn = True
 
-        self.placeChip("player")
-        self.placeChip("dealer")
+        self.betChip("player")
+        self.betChip("dealer")
 
         for i in range(3):
             deckImage = tk.PhotoImage(file=card.backSidePath()).zoom(3)
@@ -110,14 +126,19 @@ class GameScreen(tk.Frame):
         self.playerHand = []
         self.dealerHand = []
 
-    def placeChip(self, participant):
-        startX = 960*0.25
-        startY = 720*0.95 if participant == "player" else 720*0.05
+    def betChip(self, participant):
+        if participant == "dealer":
+            startX = 960*0.25
+            startY = 720*0.05
 
-        chipImage = tk.PhotoImage(file=card.getChip("red")).zoom(3)
-        self.controller.chips.append(chipImage)
-        imageId = self.canvas.create_image(startX, startY, image=chipImage)
-        self.chips.append(imageId)
+            chipImage = tk.PhotoImage(file=card.getChip("red")).zoom(3)
+            self.controller.chips.append(chipImage)
+            imageId = self.canvas.create_image(startX, startY, image=chipImage)
+            self.bettedChips.append(imageId)
+        else:
+            imageId = self.controller.playerBank.pop()
+            self.bettedChips.append(imageId)
+            startX, startY = self.canvas.coords(imageId)
 
         finalX = int(960*0.15)+random.randint(-10, 10)
         finalY = int(720*0.5)+random.randint(-10, 10)
@@ -176,12 +197,14 @@ class GameScreen(tk.Frame):
             else:
                 self.canvas.coords(imageId, finalX, finalY)
 
-        for id in self.chips:
+        for id in self.bettedChips:
             x0, y0 = self.canvas.coords(id)
             dx = (finalX - x0)/10
             dy = (finalY - y0)/10
             moveChip(id, dx, dy)
-        self.chips = []
+            if winner == "player":
+                self.controller.playerBank.append(id)
+        self.bettedChips = []
 
         if winner == "player":
             self.controller.score += 100
