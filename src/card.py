@@ -1,18 +1,22 @@
 import os
-
+import sys
 
 class Card:
     def __init__(self, suit, rank):
         self.suit = suit
         self.rank = rank
-        self.path = os.path.join(getAssetDir(), f"card_{self.suit}_{self.rank}.png")
+        self.path = getResourcePath(f"card_{self.suit}_{self.rank}.png")
 
-def getAssetDir():
-    baseDir = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(baseDir, "..", "assets")
-        
+def getResourcePath(relativePath):
+    if hasattr(sys, "_MEIPASS"):
+        basePath = sys._MEIPASS
+    else:
+        basePath = os.path.dirname(os.path.abspath(__file__))
+        basePath = os.path.join(basePath, "..")
+    return os.path.join(basePath, "assets", relativePath)
+
 def backSidePath():
-    return os.path.join(getAssetDir(), "card_back.png")
+    return getResourcePath("card_back.png")
 
 def getChip(color):
-    return os.path.join(getAssetDir(), f"chip_{color}.png")
+    return getResourcePath(f"chip_{color}.png")

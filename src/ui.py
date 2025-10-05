@@ -28,7 +28,6 @@ class Window(tk.Tk):
 
     def newGame(self):
         self.game = Game()
-        print(len(self.playerBank)*100)
         self.showFrame(GameScreen)
 
     def restart(self):
